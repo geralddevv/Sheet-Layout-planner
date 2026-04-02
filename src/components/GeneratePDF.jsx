@@ -141,7 +141,9 @@ const PdfPreview = ({ pdfBlob, zoom }) => {
           ref={containerRef}
           className={`absolute inset-0 overflow-auto preview-scrollbar transition-opacity duration-200 ${loading ? "opacity-0" : "opacity-100"}`}
         >
-          <div ref={viewerRef} className="pdfViewer pdf-viewer-center" />
+          <div className="pdf-viewer-stage">
+            <div ref={viewerRef} className="pdfViewer pdf-viewer-center" />
+          </div>
         </div>
       </div>
     </div>

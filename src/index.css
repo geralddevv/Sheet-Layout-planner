@@ -81,6 +81,15 @@
     scrollbar-color: #3a3a3a #1f1f1f;
   }
 
+  .pdf-viewer-stage {
+    min-height: 100%;
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
   .pdf-viewer-center {
     display: flex;
     flex-direction: column;

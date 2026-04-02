@@ -107,10 +107,16 @@
 
   .pdf-viewer-center .page {
     margin: 0 0 1rem 0;
+    padding: 2px;
+    box-sizing: content-box;
   }
 
   .pdf-viewer-center .page:last-child {
     margin-bottom: 0;
+  }
+
+  .pdf-viewer-center .canvasWrapper {
+    overflow: visible;
   }
 
   /* No Spinner for Number Inputs */

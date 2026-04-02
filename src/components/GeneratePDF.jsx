@@ -1,10 +1,105 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, View, pdf } from "@react-pdf/renderer";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min?url";
 import { useLayout } from "../context/LayoutProvider";
 import { computeAutoMargins } from "../utils/computeAutoMargins";
 import TokenTemplate from "../utils/TokenTemplate";
 import { addTrimMarksToPDF } from "../utils/TrimMarksPDFLib";
 import Toast from "../utils/Toast";
+
+GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+
+const PdfPreview = ({ pdfBlob }) => {
+  const containerRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [renderError, setRenderError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    let loadingTask = null;
+    let url = "";
+
+    const render = async () => {
+      if (!pdfBlob || !containerRef.current) return;
+
+      setLoading(true);
+      setRenderError("");
+
+      url = URL.createObjectURL(pdfBlob);
+      const container = containerRef.current;
+      container.innerHTML = "";
+
+      try {
+        loadingTask = getDocument({ url });
+        const pdfDoc = await loadingTask.promise;
+
+        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum += 1) {
+          if (cancelled) return;
+          const page = await pdfDoc.getPage(pageNum);
+
+          const baseViewport = page.getViewport({ scale: 1 });
+          const padding = 16;
+          const containerWidth = Math.max(container.clientWidth - padding, 320);
+          const scale = containerWidth / baseViewport.width;
+          const viewport = page.getViewport({ scale });
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          const pixelRatio = window.devicePixelRatio || 1;
+
+          canvas.width = viewport.width * pixelRatio;
+          canvas.height = viewport.height * pixelRatio;
+          canvas.style.width = `${viewport.width}px`;
+          canvas.style.height = `${viewport.height}px`;
+          canvas.className = "bg-white rounded-md shadow-sm border border-nero-700";
+
+          if (context) {
+            context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+          }
+
+          const pageWrapper = document.createElement("div");
+          pageWrapper.className = "w-full flex justify-center mb-4 last:mb-0";
+          pageWrapper.appendChild(canvas);
+          container.appendChild(pageWrapper);
+
+          await page.render({ canvasContext: context, viewport }).promise;
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error(err);
+          setRenderError("Preview could not be rendered.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    render();
+
+    return () => {
+      cancelled = true;
+      if (loadingTask) loadingTask.destroy();
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [pdfBlob]);
+
+  return (
+    <div className="h-full w-full overflow-y-auto preview-scrollbar rounded-md border border-nero-600 bg-nero-900 p-3">
+      {loading && (
+        <div className="w-full flex items-center justify-center text-sm text-nero-400">
+          Rendering preview...
+        </div>
+      )}
+      {renderError && (
+        <div className="w-full text-xs text-red-200 bg-nero-750 border border-red-300 rounded-md px-3 py-2">
+          {renderError}
+        </div>
+      )}
+      <div ref={containerRef} />
+    </div>
+  );
+};
 
 const buildGrid = (values) => {
   const {
@@ -98,7 +193,9 @@ export default function GeneratePDF({ resetSignal }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
   const [error, setError] = useState("");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const grid = useMemo(() => buildGrid(values), [values]);
 
@@ -121,6 +218,8 @@ export default function GeneratePDF({ resetSignal }) {
     setPdfBlob(null);
     setStatusMsg("");
     setError("");
+    setIsPreviewOpen(false);
+    setShowToast(false);
   }, [
     resetSignal,
     values.paperWidthPt,
@@ -166,7 +265,7 @@ export default function GeneratePDF({ resetSignal }) {
   const handleGenerate = async () => {
     if (!grid.ready) {
       setError(grid.message || "Please set sizes before generating.");
-      return;
+      return false;
     }
 
     setIsGenerating(true);
@@ -220,14 +319,30 @@ export default function GeneratePDF({ resetSignal }) {
       });
 
       setPdfBlob(new Blob([trimmed], { type: "application/pdf" }));
-      setShowToast(true);
       setStatusMsg(`${grid.count} labels on a single page.`);
+      return true;
     } catch (err) {
       console.error(err);
       setError("Failed to generate the PDF. Please try again.");
+      return false;
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handlePreview = async () => {
+    if (!grid.ready) {
+      setToastMessage(grid.message || "Please set sizes before previewing.");
+      setShowToast(true);
+      return;
+    }
+
+    if (!pdfBlob) {
+      const generated = await handleGenerate();
+      if (!generated) return;
+    }
+
+    setIsPreviewOpen(true);
   };
 
   const detailLine = grid.ready
@@ -244,27 +359,16 @@ export default function GeneratePDF({ resetSignal }) {
         <div className="text-xs text-nero-400">{detailLine}</div>
       </div>
 
-      <div className="w-full flex gap-2">
+      <div className="w-full flex">
         <button
-          onClick={handleGenerate}
+          onClick={handlePreview}
           disabled={isGenerating || !grid.ready}
           className={`flex-1 h-10 px-3 rounded-md text-sm font-medium transition-all ${isGenerating || !grid.ready
             ? "bg-nero-700 text-nero-500 cursor-not-allowed"
             : "bg-denim-600 text-white hover:bg-denim-700 active:scale-95"
             }`}
         >
-          {isGenerating ? "Generating..." : "Generate PDF"}
-        </button>
-
-        <button
-          onClick={handleDownload}
-          disabled={!pdfBlob}
-          className={`w-32 h-10 px-3 rounded-md text-sm font-medium transition-all ${pdfBlob
-            ? "bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95"
-            : "bg-nero-700 text-nero-500 cursor-not-allowed"
-            }`}
-        >
-          Download
+          {isGenerating ? "Generating..." : "Preview"}
         </button>
       </div>
 
@@ -281,10 +385,51 @@ export default function GeneratePDF({ resetSignal }) {
       )}
 
       <Toast
-        message="PDF Generated Successfully!"
+        message={toastMessage}
         show={showToast}
         onClose={() => setShowToast(false)}
       />
+
+      {isPreviewOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-nero-900/80 p-4"
+          onClick={() => setIsPreviewOpen(false)}
+        >
+          <div
+            className="w-full max-w-5xl h-[80vh] sm:h-[85vh] bg-nero-800 border border-nero-700 rounded-lg shadow-xl flex flex-col overflow-hidden"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-nero-700 text-nero-300">
+              <span className="text-sm font-semibold">Preview</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDownload}
+                  disabled={!pdfBlob}
+                  className={`h-8 px-3 rounded-md text-sm font-medium transition-all ${pdfBlob
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95"
+                    : "bg-nero-700 text-nero-500 cursor-not-allowed"
+                    }`}
+                >
+                  Download
+                </button>
+                <button
+                  onClick={() => setIsPreviewOpen(false)}
+                  className="h-8 px-3 rounded-md text-sm font-medium bg-nero-700 text-nero-200 hover:bg-nero-600 active:scale-95"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 min-h-0 bg-nero-750 p-2 flex items-center justify-center">
+              <div className="w-full h-full max-w-[980px]">
+                <PdfPreview pdfBlob={pdfBlob} />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

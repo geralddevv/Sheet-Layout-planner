@@ -141,7 +141,7 @@ const PdfPreview = ({ pdfBlob, zoom }) => {
           ref={containerRef}
           className={`absolute inset-0 overflow-auto preview-scrollbar transition-opacity duration-200 ${loading ? "opacity-0" : "opacity-100"}`}
         >
-          <div className="pdf-viewer-stage">
+          <div className={`pdf-viewer-stage ${zoom > 1 ? "pdf-viewer-stage-zoomed" : ""}`}>
             <div ref={viewerRef} className="pdfViewer pdf-viewer-center" />
           </div>
         </div>
@@ -470,7 +470,7 @@ export default function GeneratePDF({ resetSignal }) {
                   >
                     –
                   </button>
-                  <span className="px-2 text-xs text-nero-300 min-w-[44px] text-center">
+                  <span className="px-2 text-xs text-nero-300 min-w-11 text-center">
                     {Math.round(previewZoom * 100)}%
                   </span>
                   <button

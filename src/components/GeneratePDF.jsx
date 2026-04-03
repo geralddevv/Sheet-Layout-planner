@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, View, pdf } from "@react-pdf/renderer";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import EmbedPDF from "./EmbedPDF";
@@ -7,6 +7,8 @@ import { computeAutoMargins } from "../utils/computeAutoMargins";
 import TokenTemplate from "../utils/TokenTemplate";
 import { addTrimMarksToPDF } from "../utils/TrimMarksPDFLib";
 import Toast from "../utils/Toast";
+
+const PREVIEW_HASH = "#pdf-preview";
 
 const buildGrid = (values) => {
   const {
@@ -97,6 +99,7 @@ export default function GeneratePDF({ resetSignal }) {
   const { values } = layout;
   const reduceMotion = useReducedMotion();
 
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
   const [pdfBlob, setPdfBlob] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
@@ -106,6 +109,35 @@ export default function GeneratePDF({ resetSignal }) {
   const [toastMessage, setToastMessage] = useState("");
 
   const grid = useMemo(() => buildGrid(values), [values]);
+
+  useEffect(() => {
+    const mediaQuery =
+      typeof window !== "undefined"
+        ? window.matchMedia("(max-width: 640px)")
+        : null;
+
+    if (!mediaQuery) return undefined;
+
+    const update = () => setIsMobilePreview(mediaQuery.matches);
+    update();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", update);
+      return () => mediaQuery.removeEventListener("change", update);
+    }
+
+    mediaQuery.addListener(update);
+    return () => mediaQuery.removeListener(update);
+  }, []);
+
+  const closePreview = () => {
+    if (isMobilePreview && window.location.hash === PREVIEW_HASH) {
+      window.history.back();
+      return;
+    }
+
+    setIsPreviewOpen(false);
+  };
 
   useEffect(() => {
     if (!values.userMarginOverride) {
@@ -126,6 +158,13 @@ export default function GeneratePDF({ resetSignal }) {
     setPdfBlob(null);
     setStatusMsg("");
     setError("");
+    if (window.location.hash === PREVIEW_HASH) {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search
+      );
+    }
     setIsPreviewOpen(false);
     setShowToast(false);
   }, [
@@ -250,8 +289,29 @@ export default function GeneratePDF({ resetSignal }) {
       if (!generated) return;
     }
 
+    if (isMobilePreview) {
+      if (window.location.hash !== PREVIEW_HASH) {
+        window.location.hash = PREVIEW_HASH;
+      } else {
+        setIsPreviewOpen(true);
+      }
+      return;
+    }
+
     setIsPreviewOpen(true);
   };
+
+  useEffect(() => {
+    if (!isMobilePreview) return undefined;
+
+    const syncFromHash = () => {
+      setIsPreviewOpen(window.location.hash === PREVIEW_HASH);
+    };
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, [isMobilePreview]);
 
   useEffect(() => {
     if (!isPreviewOpen) return undefined;
@@ -310,8 +370,8 @@ export default function GeneratePDF({ resetSignal }) {
       <AnimatePresence>
         {isPreviewOpen && (
           <motion.div
-            className="fixed inset-0 z-50 bg-nero-900/85"
-            onClick={() => setIsPreviewOpen(false)}
+            className={`fixed inset-0 z-50 ${isMobilePreview ? "bg-nero-900" : "bg-nero-900/85"}`}
+            onClick={isMobilePreview ? undefined : closePreview}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -353,7 +413,7 @@ export default function GeneratePDF({ resetSignal }) {
                   </span>
                 </button>
                 <button
-                  onClick={() => setIsPreviewOpen(false)}
+                  onClick={closePreview}
                   className="h-8 px-3 rounded-md text-sm font-medium bg-nero-700 text-nero-200 hover:bg-nero-600 active:scale-95"
                   aria-label="Close preview"
                 >

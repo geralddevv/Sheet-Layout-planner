@@ -409,7 +409,7 @@ export default function GeneratePDF({ resetSignal }) {
                   aria-label="Close preview"
                 >
                   <CloseRoundedIcon sx={{ fontSize: 18 }} />
-                  <span>Close</span>
+                  {!isMobilePreview && <span>Close</span>}
                 </button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Document, Page, View, pdf } from "@react-pdf/renderer";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import EmbedPDF from "./EmbedPDF";
@@ -104,8 +104,6 @@ export default function GeneratePDF({ resetSignal }) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [previewZoomPct, setPreviewZoomPct] = useState(100);
-  const previewViewerRef = useRef(null);
 
   const grid = useMemo(() => buildGrid(values), [values]);
 
@@ -130,7 +128,6 @@ export default function GeneratePDF({ resetSignal }) {
     setError("");
     setIsPreviewOpen(false);
     setShowToast(false);
-    setPreviewZoomPct(100);
   }, [
     resetSignal,
     values.paperWidthPt,
@@ -260,14 +257,8 @@ export default function GeneratePDF({ resetSignal }) {
     if (!isPreviewOpen) return undefined;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
-    const handle = setTimeout(() => {
-      const pct = previewViewerRef.current?.getZoomPercent?.();
-      if (typeof pct === "number") setPreviewZoomPct(pct);
-    }, 0);
     return () => {
       document.body.style.overflow = prev;
-      clearTimeout(handle);
     };
   }, [isPreviewOpen]);
 
@@ -334,44 +325,10 @@ export default function GeneratePDF({ resetSignal }) {
               exit={{ opacity: 0, scale: 0.985, y: 6 }}
               transition={{ duration: reduceMotion ? 0 : 0.18, ease: "easeOut" }}
             >
-            <div className="grid grid-cols-3 items-center px-4 py-3 border-b border-nero-700 text-nero-300">
-              <span className="justify-self-start text-sm font-semibold">Preview</span>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-nero-700 text-nero-300">
+              <span className="text-sm font-semibold">Preview</span>
 
-              <div className="justify-self-center">
-                <div className="flex items-center gap-1 rounded-md bg-nero-700 p-0.5">
-                  <button
-                    onClick={() => {
-                      previewViewerRef.current?.zoomOut?.();
-                      const pct = previewViewerRef.current?.getZoomPercent?.();
-                      if (typeof pct === "number") setPreviewZoomPct(pct);
-                    }}
-                    disabled={!pdfBlob}
-                    className={`h-7 w-7 rounded-md text-nero-200 active:scale-95 ${pdfBlob ? "hover:bg-nero-600" : "opacity-50 cursor-not-allowed"
-                      }`}
-                    aria-label="Zoom out"
-                  >
-                    –
-                  </button>
-                  <span className="px-2 text-xs text-nero-300 min-w-11 text-center tabular-nums">
-                    {previewZoomPct}%
-                  </span>
-                  <button
-                    onClick={() => {
-                      previewViewerRef.current?.zoomIn?.();
-                      const pct = previewViewerRef.current?.getZoomPercent?.();
-                      if (typeof pct === "number") setPreviewZoomPct(pct);
-                    }}
-                    disabled={!pdfBlob}
-                    className={`h-7 w-7 rounded-md text-nero-200 active:scale-95 ${pdfBlob ? "hover:bg-nero-600" : "opacity-50 cursor-not-allowed"
-                      }`}
-                    aria-label="Zoom in"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="justify-self-end flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handleDownload}
                   disabled={!pdfBlob}
@@ -407,11 +364,7 @@ export default function GeneratePDF({ resetSignal }) {
             </div>
 
             <div className="flex-1 min-h-0 bg-nero-750">
-              <EmbedPDF
-                ref={previewViewerRef}
-                pdfBlob={pdfBlob}
-                className="h-full w-full border-0 rounded-none"
-              />
+              <EmbedPDF pdfBlob={pdfBlob} className="h-full w-full border-0 rounded-none" />
             </div>
 
             </motion.div>

@@ -1,6 +1,8 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, View, pdf } from "@react-pdf/renderer";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import EmbedPDF from "./EmbedPDF";
 import { useLayout } from "../context/LayoutProvider";
 import { computeAutoMargins } from "../utils/computeAutoMargins";
@@ -392,33 +394,22 @@ export default function GeneratePDF({ resetSignal }) {
                 <button
                   onClick={handleDownload}
                   disabled={!pdfBlob}
-                  className={`h-8 px-3 rounded-md text-sm font-medium transition-all ${pdfBlob
+                  className={`h-8 px-3 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${pdfBlob
                     ? "bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95"
                     : "bg-nero-700 text-nero-500 cursor-not-allowed"
                     }`}
                   aria-label="Download"
                 >
-                  <span className="hidden sm:inline">Download</span>
-                  <span className="inline sm:hidden">
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-                      <path
-                        d="M12 3v10m0 0l4-4m-4 4l-4-4M5 20h14"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
+                  <DownloadRoundedIcon sx={{ fontSize: 18 }} />
+                  <span>Download</span>
                 </button>
                 <button
                   onClick={closePreview}
-                  className="h-8 px-3 rounded-md text-sm font-medium bg-nero-700 text-nero-200 hover:bg-nero-600 active:scale-95"
+                  className="h-8 px-3 rounded-md text-sm font-medium bg-nero-700 text-nero-200 hover:bg-nero-600 active:scale-95 flex items-center gap-2"
                   aria-label="Close preview"
                 >
-                  <span className="hidden sm:inline">Close</span>
-                  <span className="inline sm:hidden text-lg leading-none">×</span>
+                  <CloseRoundedIcon sx={{ fontSize: 18 }} />
+                  <span>Close</span>
                 </button>
               </div>
             </div>

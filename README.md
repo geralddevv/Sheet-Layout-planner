@@ -1,6 +1,16 @@
-# Chronos - Sheet Layout Planner
+# **Chronos**
+### Sheet Layout Planner
 
-Chronos is a focused sheet layout planner for labels and coupons. Enter page size, label size, and gaps, and the app calculates the grid, previews the layout, and generates a PDF for print verification.
+<div align="left">
+  <img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/PDF%20Renderer-@react--pdf-black?style=for-the-badge&logo=adobe&logoColor=white" />
+  <img src="https://img.shields.io/badge/Framer%20Motion-Animation-purple?style=for-the-badge&logo=framer" />
+</div>
+
+<br/>
+
+**Chronos** is a focused sheet layout planner for labels and coupons. Enter page size, label size, and gaps, and the app calculates the grid, previews the layout, and generates a PDF for print verification.
 
 ## Features
 - Page presets (A/B/C series and US sizes)

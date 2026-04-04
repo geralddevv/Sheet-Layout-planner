@@ -15,6 +15,7 @@ function EmbedPDF({ pdfBlob, className = "" }, ref) {
   const mountRef = useRef(null);
   const containerRef = useRef(null);
   const zoomRef = useRef(null);
+  const shadowStyleRef = useRef(null);
 
   const url = useMemo(() => {
     if (!pdfBlob) return "";
@@ -182,6 +183,40 @@ function EmbedPDF({ pdfBlob, className = "" }, ref) {
         },
       },
     };
+  }, [url]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const root = container?.shadowRoot;
+    if (!root) return;
+
+    if (!shadowStyleRef.current) {
+      const style = document.createElement("style");
+      style.setAttribute("data-embedpdf-mobile-center", "true");
+      style.textContent = `
+@media (max-width: 768px) {
+  #document-content > .flex-1 {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  #document-content > .flex-1 > .relative.h-full.w-full {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  #document-content .bg-bg-app {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+      `.trim();
+      root.appendChild(style);
+      shadowStyleRef.current = style;
+    }
   }, [url]);
 
   if (!pdfBlob) {

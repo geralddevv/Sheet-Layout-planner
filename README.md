@@ -11,12 +11,13 @@ Before Nyxen, every label job started the same way: we had to open a design tool
 Nyxen turns that setup into a simple web workflow. You enter the page and label dimensions, and the app instantly calculates the layout, shows a live preview, and generates a PDF you can review and download. It makes label planning faster, clearer, and much easier to verify before sending anything to print.
 
 ## Features
-
 - Live layout preview with automatic label count calculation
 - Custom page size, label size, and spacing controls
 - PDF generation with preview before download
 - Supports portrait and landscape sheet layouts
+- Automatic theme switching (dark/light mode) based on browser preferences
 - Helps you see exactly how many labels will fit on the page
+
 
 ## Tech Stack
 
@@ -32,8 +33,8 @@ Nyxen turns that setup into a simple web workflow. You enter the page and label 
 ## Screenshots
 
 <p align="center">
-  <img src="src/assets/screenshot1.png" alt="Portrait preview" width="45%" style="margin: 0 10px;" />
-  <img src="src/assets/screenshot2.png" alt="Landscape preview" width="45%" style="margin: 0 10px;" />
+  <img src="src/assets/screenshot1.png" alt="Portrait preview" width="45%" style="margin: 0 20px;" />
+  <img src="src/assets/screenshot2.png" alt="Landscape preview" width="45%" style="margin: 0 20px;" />
 </p>
 
 ## Challenges You Solved

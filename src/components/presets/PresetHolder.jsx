@@ -16,8 +16,8 @@ const PresetHolder = () => {
   const [selectedPreset, setSelectedPreset] = useState(null);
 
   const tabClasses = (index) =>
-    `px-4 py-2 cursor-pointer whitespace-nowrap transition-colors duration-200 border-b-2 border-transparent
-     ${currentTab === index ? "text-nero-300 border-b-2 border-white" : "text-nero-400 hover:text-nero-100"}`;
+    `px-4 py-2 cursor-pointer whitespace-nowrap transition-colors duration-200 border-b-2
+     ${currentTab === index ? "text-nero-300 border-b-nero-100" : "text-nero-400 border-b-transparent hover:text-nero-100"}`;
 
   const renderPreset = (name, w, h) => (
     <PresetOption

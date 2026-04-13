@@ -257,7 +257,7 @@ export default function GeneratePDF({ resetSignal }) {
       </div>
 
       {grid.count > 0 && (
-        <div className="w-full text-xs text-green-200 bg-nero-750 border border-nero-600 rounded-md px-3 py-2">
+        <div className="w-full text-xs theme-success-text bg-nero-750 border border-nero-600 rounded-md px-3 py-2">
           {`${grid.count} labels on a single page.`}
         </div>
       )}

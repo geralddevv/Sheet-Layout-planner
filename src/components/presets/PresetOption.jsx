@@ -1,12 +1,64 @@
 import { useLayout } from "../../context/LayoutProvider";
 import { useRefresh } from "../../context/RefreshContext";
+import { useEffect, useState } from "react";
 import PresetPortraitImg from "../../assets/preset-portrait-img.svg";
 import PresetLandscapeImg from "../../assets/preset-landscape-img.svg";
+import PresetPortraitImgDark from "../../assets/preset-portrait-img-dark.svg";
+import PresetLandscapeImgDark from "../../assets/preset-landscape-img-dark.svg";
 import { mmToPt } from "../../utils/unitConversion";
+
+const isDarkThemeActive = () => {
+  if (typeof window === "undefined") return false;
+
+  const root = document.documentElement;
+  const body = document.body;
+  const explicitTheme =
+    root.dataset.theme || body?.dataset.theme || "";
+
+  if (explicitTheme === "dark") return true;
+  if (explicitTheme === "light") return false;
+
+  if (root.classList.contains("dark") || body?.classList.contains("dark")) {
+    return true;
+  }
+
+  if (root.classList.contains("light") || body?.classList.contains("light")) {
+    return false;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+};
 
 const PresetOption = ({ paperName, width, height, selected, onSelect }) => {
   const layout = useLayout();
   const { handleRefresh } = useRefresh();
+  const [isDarkTheme, setIsDarkTheme] = useState(isDarkThemeActive);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const syncTheme = () => setIsDarkTheme(isDarkThemeActive());
+    const observer = new MutationObserver(syncTheme);
+
+    syncTheme();
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme"],
+    });
+
+    if (document.body) {
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class", "data-theme"],
+      });
+    }
+
+    mediaQuery.addEventListener("change", syncTheme);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener("change", syncTheme);
+    };
+  }, []);
 
   const applyPreset = () => {
     // UI knows preset is updating
@@ -26,7 +78,11 @@ const PresetOption = ({ paperName, width, height, selected, onSelect }) => {
     layout.set.setUserMarginOverride(false);
   };
 
-  const previewImg = width > height ? PresetLandscapeImg : PresetPortraitImg;
+  const previewLightImg =
+    width > height ? PresetLandscapeImgDark : PresetPortraitImgDark;
+  const previewDarkImg =
+    width > height ? PresetLandscapeImg : PresetPortraitImg;
+  const previewImg = isDarkTheme ? previewDarkImg : previewLightImg;
 
   return (
     <button
@@ -39,8 +95,8 @@ const PresetOption = ({ paperName, width, height, selected, onSelect }) => {
     w-full h-full flex flex-col items-center justify-center p-4 gap-4 rounded-md
     transition-colors duration-150 focus:outline-none
     ${selected
-          ? "ring-3 ring-denim-600 ring-inset bg-[#2b2b2b]"
-          : "bg-nero-800 hover:bg-[#2b2b2b] ring-0"
+          ? "ring-3 ring-denim-600 ring-inset bg-nero-700"
+          : "bg-nero-800 hover:bg-nero-700 ring-0"
         }
   `}
     >
@@ -51,7 +107,7 @@ const PresetOption = ({ paperName, width, height, selected, onSelect }) => {
       />
 
       <span className="flex flex-col justify-center items-center text-sm font-semibold">
-        <h4 className="text-base group-hover:text-denim-400 transition-colors duration-150">
+        <h4 className="text-base preset-title-hover">
           {paperName}
         </h4>
         <h4 className="font-medium">{`${width} x ${height} mm`}</h4>

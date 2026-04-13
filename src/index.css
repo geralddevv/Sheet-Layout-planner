@@ -6,17 +6,31 @@
 }
 
 @theme {
-  /* Neutral / Grey Scale */
-  --color-nero-50: #ffffff; /* Pure White */
-  --color-nero-100: #f3f3f3; /* Snow Grey */
-  --color-nero-300: #d1d1d1; /* Light Grey */
-  --color-nero-400: #b4b4b4; /* Soft Grey */
-  --color-nero-450: #989898; /* Mid Grey */
-  --color-nero-600: #5d5d5d; /* Medium Grey */
-  --color-nero-700: #2a2a2a; /* Charcoal */
-  --color-nero-750: #2e2e2e; /* Dark Charcoal */
-  --color-nero-800: #323232; /* Obsidian Grey */
-  --color-nero-900: #1b1b1b; /* Almost Black */
+  /* Light Mode (default) */
+  --color-bianco-900: #d9d9d9;
+  --color-bianco-800: #cdcdcd;
+  --color-bianco-750: #c2c2c2;
+  --color-bianco-700: #b6b6b6;
+  --color-bianco-600: #9a9a9a;
+  --color-bianco-450: #7c7c7c;
+  --color-bianco-400: #626262;
+  --color-bianco-300: #4a4a4a;
+  --color-bianco-100: #191919;
+  --color-bianco-50: #080808;
+
+  /* Active surface palette */
+  --color-nero-900: var(--color-bianco-900);
+  --color-nero-800: var(--color-bianco-800);
+  --color-nero-750: var(--color-bianco-750);
+  --color-nero-700: var(--color-bianco-700);
+  --color-nero-600: var(--color-bianco-600);
+  --color-nero-500: #8b8b8b;
+  --color-nero-450: var(--color-bianco-450);
+  --color-nero-400: var(--color-bianco-400);
+  --color-nero-300: var(--color-bianco-300);
+  --color-nero-200: #303030;
+  --color-nero-100: var(--color-bianco-100);
+  --color-nero-50: var(--color-bianco-50);
 
   /* Accent */
   --color-accent-500: #1473e6;
@@ -35,8 +49,75 @@
   --color-denim-950: #1c395e;
 }
 
+.dark,
+[data-theme="dark"] {
+  --color-nero-50: #ffffff;
+  --color-nero-100: #f3f3f3;
+  --color-nero-200: #e3e3e3;
+  --color-nero-300: #d1d1d1;
+  --color-nero-400: #b4b4b4;
+  --color-nero-450: #989898;
+  --color-nero-500: #7b7b7b;
+  --color-nero-600: #5d5d5d;
+  --color-nero-700: #2a2a2a;
+  --color-nero-750: #2e2e2e;
+  --color-nero-800: #323232;
+  --color-nero-900: #1b1b1b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme="light"]) {
+    --color-nero-50: #ffffff;
+    --color-nero-100: #f3f3f3;
+    --color-nero-200: #e3e3e3;
+    --color-nero-300: #d1d1d1;
+    --color-nero-400: #b4b4b4;
+    --color-nero-450: #989898;
+    --color-nero-500: #7b7b7b;
+    --color-nero-600: #5d5d5d;
+    --color-nero-700: #2a2a2a;
+    --color-nero-750: #2e2e2e;
+    --color-nero-800: #323232;
+    --color-nero-900: #1b1b1b;
+  }
+}
+
 /*Scrollbar Utilities*/
 @layer utilities {
+  .preset-title-hover {
+    transition: color 150ms;
+  }
+
+  .group:hover .preset-title-hover {
+    color: var(--color-denim-600);
+  }
+
+  .dark .group:hover .preset-title-hover,
+  [data-theme="dark"] .group:hover .preset-title-hover {
+    color: var(--color-denim-400);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light):not([data-theme="light"]) .group:hover .preset-title-hover {
+      color: var(--color-denim-400);
+    }
+  }
+
+  .theme-success-text {
+    color: #2f6f44;
+  }
+
+  .dark .theme-success-text,
+  [data-theme="dark"] .theme-success-text {
+    color: #bbf7d0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light):not([data-theme="light"]) .theme-success-text {
+      color: #bbf7d0;
+    }
+  }
+
   .minimal-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
@@ -46,14 +127,14 @@
   }
 
   .minimal-scrollbar::-webkit-scrollbar-thumb {
-    background: #2b2b2b;
+    background: var(--color-nero-500);
     border-radius: 8px;
   }
 
   /* Firefox */
   .minimal-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #2b2b2b transparent;
+    scrollbar-color: var(--color-nero-500) transparent;
   }
 
   .minimal-scrollbar::-webkit-scrollbar-button {
@@ -67,18 +148,18 @@
   }
 
   .preview-scrollbar::-webkit-scrollbar-track {
-    background: #1f1f1f;
+    background: var(--color-nero-800);
   }
 
   .preview-scrollbar::-webkit-scrollbar-thumb {
-    background: #3a3a3a;
+    background: var(--color-nero-600);
     border-radius: 8px;
-    border: 2px solid #1f1f1f;
+    border: 2px solid var(--color-nero-800);
   }
 
   .preview-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #3a3a3a #1f1f1f;
+    scrollbar-color: var(--color-nero-600) var(--color-nero-800);
   }
 
   .pdf-viewer-stage {

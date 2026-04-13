@@ -11,6 +11,92 @@ const MINIMAL_UI_SCHEMA = {
   selectionMenus: {},
 };
 
+const EMBED_THEME = {
+  preference: "system",
+  light: {
+    background: {
+      app: "#d9d9d9",
+      surface: "#cdcdcd",
+      surfaceAlt: "#c2c2c2",
+      elevated: "#b6b6b6",
+      overlay: "rgba(0, 0, 0, 0.16)",
+      input: "#cdcdcd",
+    },
+    foreground: {
+      primary: "#191919",
+      secondary: "#272727",
+      muted: "#626262",
+      disabled: "#9a9a9a",
+      onAccent: "#ffffff",
+    },
+    border: {
+      default: "#9a9a9a",
+      subtle: "#b6b6b6",
+      strong: "#626262",
+    },
+    accent: {
+      primary: "#2462ab",
+      primaryHover: "#1d4c87",
+      primaryActive: "#1c4270",
+      primaryLight: "rgba(36, 98, 171, 0.16)",
+      primaryForeground: "#ffffff",
+    },
+    interactive: {
+      hover: "#c2c2c2",
+      active: "#b6b6b6",
+      selected: "#cdcdcd",
+      focus: "#337ac4",
+      focusRing: "#92bae7",
+    },
+    scrollbar: {
+      track: "#b6b6b6",
+      thumb: "#7c7c7c",
+      thumbHover: "#626262",
+    },
+  },
+  dark: {
+    background: {
+      app: "#1b1b1b",
+      surface: "#323232",
+      surfaceAlt: "#2e2e2e",
+      elevated: "#2a2a2a",
+      overlay: "rgba(0, 0, 0, 0.7)",
+      input: "#2a2a2a",
+    },
+    foreground: {
+      primary: "#f3f3f3",
+      secondary: "#d1d1d1",
+      muted: "#b4b4b4",
+      disabled: "#5d5d5d",
+      onAccent: "#ffffff",
+    },
+    border: {
+      default: "#5d5d5d",
+      subtle: "#2e2e2e",
+      strong: "#989898",
+    },
+    accent: {
+      primary: "#2462ab",
+      primaryHover: "#1d4c87",
+      primaryActive: "#1c4270",
+      primaryLight: "rgba(36, 98, 171, 0.18)",
+      primaryForeground: "#ffffff",
+    },
+    interactive: {
+      hover: "#2e2e2e",
+      active: "#2a2a2a",
+      selected: "#323232",
+      focus: "#337ac4",
+      focusRing: "#92bae7",
+    },
+    scrollbar: {
+      track: "#1f1f1f",
+      thumb: "#3a3a3a",
+      thumbHover: "#5d5d5d",
+    },
+  },
+};
+
 function EmbedPDF({ pdfBlob, className = "" }, ref) {
   const mountRef = useRef(null);
   const containerRef = useRef(null);
@@ -75,50 +161,7 @@ function EmbedPDF({ pdfBlob, className = "" }, ref) {
           src: url || undefined,
           disabledCategories: ["annotation", "redaction", "form"],
           ui: { schema: MINIMAL_UI_SCHEMA },
-          theme: {
-            preference: "dark",
-            dark: {
-              background: {
-                app: "#1b1b1b",
-                surface: "#323232",
-                surfaceAlt: "#2e2e2e",
-                elevated: "#2a2a2a",
-                overlay: "rgba(0, 0, 0, 0.7)",
-                input: "#2a2a2a",
-              },
-              foreground: {
-                primary: "#f3f3f3",
-                secondary: "#d1d1d1",
-                muted: "#b4b4b4",
-                disabled: "#5d5d5d",
-                onAccent: "#ffffff",
-              },
-              border: {
-                default: "#5d5d5d",
-                subtle: "#2e2e2e",
-                strong: "#989898",
-              },
-              accent: {
-                primary: "#2462ab",
-                primaryHover: "#1d4c87",
-                primaryActive: "#1c4270",
-                primaryLight: "rgba(36, 98, 171, 0.18)",
-                primaryForeground: "#ffffff",
-              },
-              interactive: {
-                hover: "#2e2e2e",
-                active: "#2a2a2a",
-                selected: "#323232",
-                focus: "#337ac4",
-                focusRing: "#92bae7",
-              },
-              scrollbar: {
-                track: "#1f1f1f",
-                thumb: "#3a3a3a",
-                thumbHover: "#5d5d5d",
-              },
-            },
-          },
+          theme: EMBED_THEME,
         }) || null;
 
       containerRef.current = container;
@@ -131,57 +174,7 @@ function EmbedPDF({ pdfBlob, className = "" }, ref) {
       src: url || undefined,
       disabledCategories: ["annotation", "redaction", "form"],
       ui: { schema: MINIMAL_UI_SCHEMA },
-      theme: {
-        preference: "dark",
-        dark: {
-          ...(containerRef.current.config?.theme?.dark || {}),
-          background: {
-            ...(containerRef.current.config?.theme?.dark?.background || {}),
-            app: "#1b1b1b",
-            surface: "#323232",
-            surfaceAlt: "#2e2e2e",
-            elevated: "#2a2a2a",
-            overlay: "rgba(0, 0, 0, 0.7)",
-            input: "#2a2a2a",
-          },
-          foreground: {
-            ...(containerRef.current.config?.theme?.dark?.foreground || {}),
-            primary: "#f3f3f3",
-            secondary: "#d1d1d1",
-            muted: "#b4b4b4",
-            disabled: "#5d5d5d",
-            onAccent: "#ffffff",
-          },
-          border: {
-            ...(containerRef.current.config?.theme?.dark?.border || {}),
-            default: "#5d5d5d",
-            subtle: "#2e2e2e",
-            strong: "#989898",
-          },
-          accent: {
-            ...(containerRef.current.config?.theme?.dark?.accent || {}),
-            primary: "#2462ab",
-            primaryHover: "#1d4c87",
-            primaryActive: "#1c4270",
-            primaryLight: "rgba(36, 98, 171, 0.18)",
-            primaryForeground: "#ffffff",
-          },
-          interactive: {
-            ...(containerRef.current.config?.theme?.dark?.interactive || {}),
-            hover: "#2e2e2e",
-            active: "#2a2a2a",
-            selected: "#323232",
-            focus: "#337ac4",
-            focusRing: "#92bae7",
-          },
-          scrollbar: {
-            ...(containerRef.current.config?.theme?.dark?.scrollbar || {}),
-            track: "#1f1f1f",
-            thumb: "#3a3a3a",
-            thumbHover: "#5d5d5d",
-          },
-        },
-      },
+      theme: EMBED_THEME,
     };
   }, [url]);
 
